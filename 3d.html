@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D and AR Model</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/webxr/ARButton.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/loaders/GLTFLoader.js"></script>
+  <script>
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true; // Enable WebXR for AR
+    document.body.appendChild(renderer.domElement);
+
+    // AR Button
+    document.body.appendChild(THREE.ARButton.createButton(renderer));
+
+    // Lighting
+    const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    scene.add(light);
+
+    // Ground Plane
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(10, 10),
+      new THREE.ShadowMaterial({ opacity: 0.5 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.5;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Load a 3D Model
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+      "https://modelviewer.dev/shared-assets/models/Astronaut.glb", // Replace with your model URL
+      (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(0.2, 0.2, 0.2); // Adjust the model size
+        scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error("An error occurred while loading the model:", error);
+      }
+    );
+
+    // Animation Loop
+    renderer.setAnimationLoop(() => {
+      renderer.render(scene, camera);
+    });
+  </script>
+</body>
+</html>
